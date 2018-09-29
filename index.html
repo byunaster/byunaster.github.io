@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <!-- Firebase App is always required and must be first -->
-<script src="https://www.gstatic.com/firebasejs/5.4.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.4.1/firebase.js"></script>
 
 <!-- Add additional services that you want to use -->
 <script src="https://www.gstatic.com/firebasejs/5.4.1/firebase-auth.js"></script>
@@ -12,10 +12,15 @@
 
 <!-- Comment out (or don't include) services that you don't want to use -->
 <!-- <script src="https://www.gstatic.com/firebasejs/5.4.1/firebase-storage.js"></script> -->
-
 <script>
+  // Initialize Firebase
   var config = {
-    // ...
+    apiKey: "AIzaSyBS-1gXjgH4zYODi0d5Z9ZonPJH4nxk1F8",
+    authDomain: "push-test-abf8e.firebaseapp.com",
+    databaseURL: "https://push-test-abf8e.firebaseio.com",
+    projectId: "push-test-abf8e",
+    storageBucket: "push-test-abf8e.appspot.com",
+    messagingSenderId: "373327850973"
   };
   firebase.initializeApp(config);
 </script>
