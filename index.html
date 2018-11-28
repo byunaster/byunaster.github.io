@@ -33,7 +33,7 @@ $(document).ready(function(){
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function() {
-        alert('hi' + xhr.readyState);
+        alert('hi' + xhr.readyState + xhr.status);
         if(xhr.readyState == 4 && xhr.status == 200) {
             window.location.href = targetUrl;
         }
