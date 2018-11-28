@@ -29,6 +29,7 @@ $(document).ready(function(){
 		appSchem = 'itms-apps://itunes.apple.com/app/id1206190761';
 		targetUrl = "aomobile://https://mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01";
 	}
+    targetUrl = 'https://mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01';
 
 	// isMyApp();
 	$.ajax({
@@ -37,10 +38,10 @@ $(document).ready(function(){
 	        sendDataType : 'json',
 	        async   : false,
 	        success : function(data) {
-				location.href = targetUrl;
+				console.info(1, data);
 	        },
 			error: function(err){
-				location.href = appSchem;
+				console.info(2, err);
 	        }
 	});
 	// location.href = targetUrl;
