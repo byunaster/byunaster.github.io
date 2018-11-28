@@ -19,7 +19,7 @@
 <meta property="og:image:height" content="200" />
 <!-- <meta property="og:image:type" content="image/jpeg" /> -->
 <title>autoOasis 공유</title>
-<script type="text/javascript" src="https://mobile.autooasis.com/js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="http://localhost/js/jquery-1.10.2.js"></script>
 <script>
 $(document).ready(function(){
 	var userAgent = navigator.userAgent;
@@ -46,6 +46,8 @@ $(document).ready(function(){
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function() {
+        window.test = xhr;
+        console.info('hi');
         if(xhr.readyState == 4 && xhr.status == 200) {
             window.location.href = targetUrl;
         }
