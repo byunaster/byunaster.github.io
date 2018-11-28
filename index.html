@@ -29,23 +29,23 @@ $(document).ready(function(){
 		appSchem = 'itms-apps://itunes.apple.com/app/id1206190761';
 		targetUrl = "aomobile://https://mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01";
 	}
-    targetUrl = 'http://localhost/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01';
 
-	// isMyApp();
-	$.ajax({
-	        url     : targetUrl,
-	        type    : 'get',
-	        sendDataType : 'json',
-	        async   : false,
-	        success : function(data) {
-				console.info(1, data);
-	        },
-			error: function(err){
-				console.info(2, err);
-	        }
-	});
-	// location.href = targetUrl;
-/* 	var timer;
+	isMyApp();
+	// $.ajax({
+	//         url     : targetUrl,
+	//         type    : 'get',
+	//         sendDataType : 'json',
+	//         async   : false,
+	//         success : function(data) {
+	// 			location.href = targetUrl;
+	//         },
+	// 		error: function(err){
+	// 			location.href = appSchem;
+	//         }
+	// });
+	location.href = targetUrl;
+    
+    var timer;
 	var heartbeat;
 	var cnt = 0;
 	function isMyApp(){
@@ -68,7 +68,31 @@ $(document).ready(function(){
 		timer = setTimeout(function() {
 			location.href = appSchem;
 		}, deLay);
-	} */
+	}
+
+    function addXMLRequestCallback(callback){
+        var oldSend, i;
+        if( XMLHttpRequest.callbacks ) {
+            XMLHttpRequest.callbacks.push( callback );
+        } else {
+            XMLHttpRequest.callbacks = [callback];
+            oldSend = XMLHttpRequest.prototype.send;
+            XMLHttpRequest.prototype.send = function(){
+                for( i = 0; i < XMLHttpRequest.callbacks.length; i++ ) {
+                    XMLHttpRequest.callbacks[i]( this );
+                }
+                oldSend.apply(this, arguments);
+            }
+        }
+    }
+
+    // e.g.
+    addXMLRequestCallback( function( xhr ) {
+        console.log( xhr.responseText ); // (an empty string)
+    });
+    addXMLRequestCallback( function( xhr ) {
+        console.dir( xhr ); // have a look if there is anything useful here
+    });
 });
 </script>
 </head>
