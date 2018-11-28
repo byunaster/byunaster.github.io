@@ -19,7 +19,7 @@
 <meta property="og:image:height" content="200" />
 <!-- <meta property="og:image:type" content="image/jpeg" /> -->
 <title>autoOasis 공유</title>
-<script type="text/javascript" src="http://localhost/js/jquery-1.10.2.js"></script>
+<script type="text/javascript" src="https://mobile.autooasis.com/js/jquery-1.10.2.js"></script>
 <script>
 $(document).ready(function(){
 	var userAgent = navigator.userAgent;
@@ -30,6 +30,17 @@ $(document).ready(function(){
 		targetUrl = "aomobile://https://mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01";
 	}
 
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function() {
+        alert('hi' + xhr.readyState);
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            window.location.href = targetUrl;
+        }
+    }
+
+    xhr.open('head', targetUrl);
+    xhr.send(null);
 	isMyApp();
 	// $.ajax({
 	//         url     : targetUrl,
@@ -43,23 +54,6 @@ $(document).ready(function(){
 	// 			location.href = appSchem;
 	//         }
 	// });
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function() {
-        window.test = xhr;
-        console.info('hi');
-        if(xhr.readyState == 4 && xhr.status == 200) {
-            window.location.href = targetUrl;
-        }
-    }
-
-    xhr.open('head', targetUrl);
-    xhr.send(null);
-    // try {
-    // 	location.href = targetUrl;
-    // } catch (e) {
-    //     alert('error');    
-    // }
     
     var timer;
 	var heartbeat;
