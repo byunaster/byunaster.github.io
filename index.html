@@ -27,21 +27,21 @@ $(document).ready(function(){
 	var targetUrl = "aomobile://targeturl";
 	if (userAgent.match(/iPhone|iPad|iPod/)) {
 		appSchem = 'itms-apps://itunes.apple.com/app/id1206190761';
-		targetUrl = "aomobile://https://mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01";
+		targetUrl = "aomobile://mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01";
 	}
 
-    var xhr = new XMLHttpRequest();
+//     var xhr = new XMLHttpRequest();
 
-    xhr.onreadystatechange = function() {
-        if(xhr.readyState == 4 && xhr.status == 200) {
-            window.location.href = targetUrl;
-        }
-    }
+//     xhr.onreadystatechange = function() {
+//         if(xhr.readyState == 4 && xhr.status == 200) {
+//             window.location.href = targetUrl;
+//         }
+//     }
 
-    xhr.open('head', targetUrl);
-    xhr.send(null);
+//     xhr.open('head', targetUrl);
+//     xhr.send(null);
     isMyApp();
-    
+    location.href = targetUrl;
     var timer;
 	var heartbeat;
 	var cnt = 0;
