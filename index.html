@@ -11,7 +11,7 @@
 <meta property="og:title" content="[오토오아시스] 이벤트" />
 <meta property="og:description" content="여기를 눌러 링크를 확인하세요." />
 <meta property="og:site_name" content="오토오아시스" />
-<meta property="og:type" content="article" />
+<meta property="og:type" content="website" />
 <meta property="og:url" content="https://mobile.autooasis.com/front/event/share.do?mngNo=ME201811070000001&sttus=01" />
 <meta property="og:image" content="https://mobile.autooasis.com/front/img/link.do?imgNm=LIST_20181107092614574.jpg&imgPath=moblEvent/201811" />
 <meta property="og:image:secure_url" content="https://mobile.autooasis.com/front/img/link.do?imgNm=LIST_20181107092614574.jpg&imgPath=moblEvent/201811" />
@@ -24,7 +24,7 @@
 $(document).ready(function(){
 	var userAgent = navigator.userAgent;
 	var appSchem = 'market://details?id=com.autooasis.customer';
-	var targetUrl = "aomobile://targeturl";
+	var targetUrl = "aomobile://targeturl?:::mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01";
 	if (userAgent.match(/iPhone|iPad|iPod/)) {
 		appSchem = 'itms-apps://itunes.apple.com/app/id1206190761';
 		targetUrl = "aomobile://mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01";
