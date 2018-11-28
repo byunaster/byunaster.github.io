@@ -43,11 +43,21 @@ $(document).ready(function(){
 	// 			location.href = appSchem;
 	//         }
 	// });
-    try {
-    	location.href = targetUrl;
-    } catch (e) {
-        alert('error');    
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4 && xhr.status == 200) {
+            window.location.href = targetUrl;
+        }
     }
+
+    xhr.open('head', targetUrl);
+    xhr.send(null);
+    // try {
+    // 	location.href = targetUrl;
+    // } catch (e) {
+    //     alert('error');    
+    // }
     
     var timer;
 	var heartbeat;
