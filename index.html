@@ -1,75 +1,48 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta http-equiv="Content-Script-Type" content="text/javascript">
-<meta http-equiv="Content-Style-Type" content="text/css">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Script-Type" content="text/javascript">
+    <meta http-equiv="Content-Style-Type" content="text/css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width">
 
-<meta property="og:title" content="[오토오아시스] 이벤트" />
-<meta property="og:description" content="여기를 눌러 링크를 확인하세요." />
-<meta property="og:site_name" content="오토오아시스" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://mobile.autooasis.com/front/event/share.do?mngNo=ME201811070000001&sttus=01" />
-<meta property="og:image" content="https://mobile.autooasis.com/front/img/link.do?imgNm=LIST_20181107092614574.jpg&imgPath=moblEvent/201811" />
-<meta property="og:image:secure_url" content="https://mobile.autooasis.com/front/img/link.do?imgNm=LIST_20181107092614574.jpg&imgPath=moblEvent/201811" />
-<meta property="og:image:width" content="200" />
-<meta property="og:image:height" content="200" />
-<!-- <meta property="og:image:type" content="image/jpeg" /> -->
-<title>autoOasis 공유</title>
-<script type="text/javascript" src="https://mobile.autooasis.com/js/jquery-1.10.2.js"></script>
-<script>
-$(document).ready(function(){
-	var userAgent = navigator.userAgent;
-	var appSchem = 'market://details?id=com.autooasis.customer';
-	var targetUrl = "aomobile://targeturl?:::mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01";
-	if (userAgent.match(/iPhone|iPad|iPod/)) {
-		appSchem = 'itms-apps://itunes.apple.com/app/id1206190761';
-		targetUrl = "aomobile://mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01";
-	}
-
-//     var xhr = new XMLHttpRequest();
-
-//     xhr.onreadystatechange = function() {
-//         if(xhr.readyState == 4 && xhr.status == 200) {
-//             window.location.href = targetUrl;
-//         }
-//     }
-
-//     xhr.open('head', targetUrl);
-//     xhr.send(null);
-    isMyApp();
-    location.href = targetUrl;
-    var timer;
-	var heartbeat;
-	var cnt = 0;
-	function isMyApp(){
-		function clearTimers(){
-			clearInterval(heartbeat);
-			clearTimeout(timer);
-		}
-
-		function intervalHeartbeat(){
-			++cnt;
-			if(document.webkitHidden || document.hidden){
-				clearTimers();
-			}
-			else if(cnt > 20){
-				clearTimers();
-			}
-		}
-		heartbeat = setInterval(intervalHeartbeat, 200);
-		var deLay = 1000;
-		timer = setTimeout(function() {
-			location.href = appSchem;
-		}, deLay);
-	}
-});
-</script>
+    <meta property="og:title" content="[오토오아시스] 이벤트" />
+    <meta property="og:description" content="여기를 눌러 링크를 확인하세요." />
+    <meta property="og:site_name" content="오토오아시스" />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://mobile.autooasis.com/front/event/share.do?mngNo=ME201811070000001&sttus=01" />
+    <meta property="og:image" content="https://mobile.autooasis.com/front/img/link.do?imgNm=LIST_20181107092614574.jpg&imgPath=moblEvent/201811" />
+    <meta property="og:image:secure_url" content="https://mobile.autooasis.com/front/img/link.do?imgNm=LIST_20181107092614574.jpg&imgPath=moblEvent/201811" />
+    <meta property="og:image:width" content="200" />
+    <meta property="og:image:height" content="200" />
+    <!-- <meta property="og:image:type" content="image/jpeg" /> -->
+    <title>autoOasis 공유</title>
+    <script type="text/javascript" src="https://mobile.autooasis.com/js/jquery-1.10.2.js"></script>
+    <script>
+        $(document).ready(function () {
+            var app_dw_i_url = "https://itunes.apple.com/kr/app/id1206190761?mt=8";
+            var url = "https://mobile.autooasis.com/front/event/eventDetail.do?mngNo=ME201811070000001&sttus=01";
+            var scheme_url = "aomobile://" + encodeURIComponent(url);
+            var intent_url = "intent://targeturl?:::" + encodeURIComponent(url) + "#Intent;scheme=aomobile;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;package=com.autooasis.customer;end";
+            if (navigator.userAgent.match(/iPhone|iPad|iPod/)) {
+                var timer = setTimeout(function () {
+                    top.location.replace(app_dw_i_url); clearTimeout(timer);
+                }, 35);
+                top.location.replace(scheme_url);
+            } else if (navigator.userAgent.match(/Android/)) {
+                window.location.href = intent_url;
+            } else {
+                // Not mobile
+                alert("PC환경에서 접속하셨습니다. 모바일 환경에서 접속바랍니다.");
+            }
+        });
+    </script>
 </head>
 
 <body>
 </body>
+
 </html>
