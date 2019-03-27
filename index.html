@@ -1,1 +1,779 @@
-.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="Keywords" content="SOLUM ESL" />
+    <meta name="copyright" content="Copyright (c) 2016 SOLUM." />
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <title>SOLU M Web PDA</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="Content-Language" content="ko">
+    <script type="text/javascript">
+
+        var finalBarcode = "";
+        var finalArticle = "";
+
+        var contextPath = '/PDA2';
+        var $itemId = null, $tagId = null, $articleNum = null;
+
+        function docOnload() {
+            $itemId = $("itemId");
+            $tagId = $("tagId");
+
+            if ("N" == 'Y') {
+                $articleNum = $("articleNum");
+            }
+            $changeLayout = $("changeLayout");
+            $selectLayout = $("selectLayout");
+            $itemId.focus();
+
+            var ActualStoredCookie = readCookie("selectedStore");
+            //console.log('Store Cookie Value:'+ActualStoredCookie);
+            document.getElementById("newlySelectedStoreCode").value = ActualStoredCookie;
+        }
+		/**
+		 * Product 인식
+		 */
+        function readItemData(event, obj) {
+            if (event.keyCode == 13 && obj.value != '') {
+                if ($("customer").value == 'MEDIASATUN' || $("customer").value == 'WOOLWORTHS') {
+                    var itemId = $itemId.value;
+                    while (itemId.substring(0, 1) == 0) {
+                        itemId = itemId.substring(1, itemId.length);
+                        $itemId.value = itemId;
+                    }
+                } else if ($("customer").value == 'ESSELUNGA') {
+                    $itemId.value = esselungaItemID($itemId.value);
+                } else if ($("customer").value == 'HOOGVLIET') {
+                    $itemId.value = hoogvlietItemId($itemId.value);
+                }
+                //alert($itemId.value);
+                var ActualStoredCookie = readCookie("selectedStore");
+                //console.log('Store Cookie Value:'+ActualStoredCookie);
+                document.getElementById("newlySelectedStoreCode").value = ActualStoredCookie;
+                asyncHttpRequest("POST", contextPath + '/readItemInfoAsync', true, formSerialize(), readItemDataCallback);
+            }
+        }
+
+        function readCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+		/**
+		 * readItemData() 실행 수 수행할 콜백함수
+		 */
+        function readItemDataCallback() {
+            //문서 다운로드가 완료
+            if (request.readyState == 4) {
+                //문서가 정상적으로 로드
+                if (request.status == 200) {
+                    data = eval("(" + request.responseText + ")");				//JSON string convert to JSON object
+
+                    if ("AIMS" == "AIMS") {
+                        if (data.resultCode == "200") {
+                            $("itemName").value = data.productName;
+                            $tagId.focus();
+                        }
+                        else {
+                            alert(data.message);
+                            $("itemName").value = "";
+                        }
+                    } else {
+                        if (data.resultCode == "00") {
+
+							/* if($("customer").value == 'MEDIASATUN'){
+								$itemId.value=data.ALIAS;
+								if( "N" == 'Y'){ 
+									$articleNum.value=data.ITEM_ID;
+								}
+							}else{
+								$itemId.value=data.ITEM_ID;
+								if( "N" == 'Y'){ 
+									$articleNum.value=data.ALIAS;
+								}
+							} */
+                            if ("N" == 'Y') {
+                                $articleNum.value = data.ITEM_ID;
+                            }
+
+                            if ($("customer").value == 'HOOGVLIET') {
+                                $articleNum.value = data.SUPPLIER_CODE;
+                                $("itemName").value = data.ITEM_NAME;
+                                $("origin").value = data.COUNTRY_OF_ORIGIN;
+                                $("NumOftags").value = data.TAG.length;
+                            } else if ($("customer").value == 'ALDI') {
+                                $("itemAlias").value = data.ALIAS;
+                                $("itemName").value = data.ITEM_NAME;
+                                $("itemCategory1").value = data.CATEGORY1;
+                                $("itemManufacturer").value = data.MANUFACTURER;
+                                $("itemEtc0").value = data.ETC_0;
+                                $("itemWeight").value = data.WEIGHT;
+                                $("itemCategory2").value = data.CATEGORY2;
+                            } else {
+                                $("itemName").value = data.ITEM_NAME;
+                                $("origin").value = data.ORIGIN;
+                            }
+
+                            if ($("customer").value == 'MEDIASATUN') {
+                                $("salePrice").value = data.MSH_PRICE + '.' + data.MSH_PRICE_DECIMAL;
+                                $("unitPrice").value = data.UNIT_PRICE + '.' + data.UNIT_PRICE_DECIMAL;
+                            } else if ($("customer").value == 'ALDI') {
+                                $("salePrice").value = data.SALE_PRICE + '.' + data.SALE_PRICE_DECIMAL;
+                                $("listPrice").value = data.LIST_PRICE + '.' + data.LIST_PRICE_DECIMAL;
+                            } else {
+                                $("salePrice").value = data.SALE_PRICE + '.' + data.SALE_PRICE_DECIMAL;
+                                $("unitPrice").value = data.UNIT_PRICE + '.' + data.UNIT_PRICE_DECIMAL;
+                            }
+
+                            if ($("customer").value == 'UBTOS') {
+                                $("listPrice").value = data.LIST_PRICE + '.' + data.LIST_PRICE_DECIMAL;
+                                $("description1").value = data.CATEGORY1;
+                                $("description2").value = data.CATEGORY2;
+                                $("description3").value = data.CATEGORY3;
+                                $("description4").value = data.CATEGORY4;
+                                $("description5").value = data.CATEGORY5;
+                            }
+
+                            if ($("customer").value == 'WOOLWORTHS') {
+                                $("unitPrice").value = data.CUP;
+                            }//else {
+                            //$("unitPrice").value=data.UNIT_PRICE + '.' + data.UNIT_PRICE_DECIMAL;
+                            //}						
+
+                            //$("origin").value=data.ORIGIN;
+
+                            $tagId.focus();
+                        } else {
+                            $("itemName").value = '';
+                            $("salePrice").value = '';
+                            $("unitPrice").value = '';
+                            $("origin").value = '';
+                            if ("N" == 'Y') {
+                                $("articleNum").value = '';
+                            }
+                            if ($("customer").value == 'UBTOS') {
+                                $("listPrice").value = '';
+                                $("description1").value = '';
+                                $("description2").value = '';
+                                $("description3").value = '';
+                                $("description4").value = '';
+                                $("description5").value = '';
+                            }
+
+                            if ($("customer").value == 'ALDI') {
+                                $("listPrice").value = '';
+                                $("itemAlias").value = '';
+                                $("itemCategory1").value = '';
+                                $("itemManufacturer").value = '';
+                                $("itemEtc0").value = '';
+                                $("itemWeight").value = '';
+                                $("itemCategory2").value = '';
+                            }
+
+                            if ($("customer").value == 'HOOGVLIET') {
+                                $("NumOftags").value = '';
+                            }
+
+                            if (data.resultCode == "FF") {
+                                alert('');
+                            } else if (data.resultCode == "01") {
+                                alert('');
+                            } else {
+                                alert(data.message);
+                            }
+
+                            setTimeout(function () { $itemId.select(); }, 100);
+                            setTimeout(function () { $itemId.focus(); }, 100);
+                        }
+                    }
+
+                } else {
+                    alert("");
+
+                    setTimeout(function () { $itemId.select(); }, 100);
+                    setTimeout(function () { $itemId.focus(); }, 100);
+                }
+            }
+        }
+
+		/**
+		 * Article number를 이용하여 Product 인식
+		 */
+        function readArticleInfo(event, obj) {
+            if (event.keyCode == 13 && obj.value != '') {
+                asyncHttpRequest("POST", contextPath + '/readArticleInfo', true, formSerialize(), ArticleInfoCallback);
+            }
+        }
+        function ArticleInfoCallback() {
+            if (request.readyState == 4) {
+                // 문서 다운로드가 완료되었는가?
+                if (request.status == 200) {
+                    // 문서가 정상적으로 로드되었는가?
+                    data = eval("(" + request.responseText + ")");		//JSON string convert to JSON object	
+                    var resultCode = data.resultCode;
+                    if (resultCode == "00") {
+
+						/* if($("customer").value == 'MEDIASATUN'){
+							$("itemId").value=data.productMap.ALIAS;							
+						}else {
+							$("itemId").value=data.productMap.ITEM_ID;							
+						} */
+                        if ($("customer").value == 'MEDIASATUN') {
+                            $("itemId").value = data.productMap.ALIAS;
+                            $("itemName").value = data.productMap.ITEM_NAME;
+                            $("origin").value = data.productMap.ORIGIN;
+                            $("salePrice").value = data.productMap.MSH_PRICE + '.' + data.productMap.MSH_PRICE_DECIMAL;
+                            $("unitPrice").value = data.productMap.UNIT_PRICE + '.' + data.productMap.UNIT_PRICE_DECIMAL;
+                        } else if ($("customer").value == 'WOOLWORTHS') {
+                            $("itemId").value = '';
+                            $("itemName").value = data.productMap.ITEM_NAME;
+                            $("origin").value = data.productMap.ORIGIN;
+                            $("salePrice").value = data.productMap.SALE_PRICE + '.' + data.productMap.SALE_PRICE_DECIMAL;
+                            $("unitPrice").value = data.productMap.CUP;
+                        } else if ($("customer").value == 'HOOGVLIET') {
+                            $("itemId").value = data.productMap.ITEM_ID;
+                            $("itemName").value = data.productMap.ITEM_NAME;
+                            $("origin").value = data.productMap.COUNTRY_OF_ORIGIN;
+                            $("salePrice").value = data.productMap.SALE_PRICE + '.' + data.productMap.SALE_PRICE_DECIMAL;
+                            $("unitPrice").value = data.productMap.UNIT_PRICE + '.' + data.productMap.UNIT_PRICE_DECIMAL;
+                            $("NumOftags").value = data.tagList.length;
+                        } else {
+                            $("itemId").value = '';
+                            $("itemName").value = data.productMap.ITEM_NAME;
+                            $("origin").value = data.productMap.ORIGIN;
+                            $("salePrice").value = data.productMap.SALE_PRICE + '.' + data.productMap.SALE_PRICE_DECIMAL;
+                            $("unitPrice").value = data.productMap.UNIT_PRICE + '.' + data.productMap.UNIT_PRICE_DECIMAL;
+                        }
+
+                        setTimeout(function () { $tagId.select(); }, 100);
+                        setTimeout(function () { $tagId.focus(); }, 100);
+                    } else {
+                        if (resultCode == "FF") {								//server error
+                            alert('');
+                        } else if (resultCode == "01") {
+                            alert('');
+                        } else {
+                            alert('');								//그 밖의 에러인 경우 interface의 메시지를 뿌려준다.
+                        }
+                        $("itemId").value = '';
+                        $("itemName").value = '';
+                        $("salePrice").value = '';
+                        $("unitPrice").value = '';
+                        $("origin").value = '';
+
+                        setTimeout(function () { $articleNum.select(); }, 100);
+                        setTimeout(function () { $articleNum.focus(); }, 100);
+                    }
+                } else {
+                    alert("Server error : (" + request.status + ") " + request.statusText);
+                    setTimeout(function () { $articleNum.select(); }, 100);
+                    setTimeout(function () { $articleNum.focus(); }, 100);
+                }
+            }
+        }
+
+		/**
+		 * Tag 인식
+		 */
+        function checkTagCallback() {
+            if (request.readyState == 4) {
+                // 문서 다운로드가 완료되었는가?
+                if (request.status == 200) {
+                    // 문서가 정상적으로 로드되었는가?
+                    data = eval("(" + request.responseText + ")");		//JSON string convert to JSON object					
+                    if (data.result) {
+                        $("serviceId").value = $("assignServiceId").value;
+                        asyncHttpRequest("POST", contextPath + '/doAssign', true, formSerialize(), doAssignCallback);
+                    } else {
+                        //alert("Invalid TagID"); 
+                        alert("");
+                        setTimeout(function () { $tagId.select(); }, 100);
+                        setTimeout(function () { $tagId.focus(); }, 100);
+                    }
+                } else {
+                    alert("");
+                    $tagId.select();
+                    $tagId.focus();
+                }
+            }
+        }
+        function doAssign(event, obj) {
+            if (event.keyCode == 13 && obj.value != '') {
+                var tagId = $tagId.value;
+                tagId = tagId.toUpperCase();
+                $tagId.value = tagId;
+
+                if (tagId.length == 16 || tagId.length == 17 || tagId.length == 13 || tagId.length == 12) {
+                    if ("AIMS" == "AIMS") {
+                        $("serviceId").value = $("assignServiceId").value;
+                        //barcode가 아닌 article id로 치환
+                        var queryString = formSerialize();
+                        var changeString = queryString.replace(finalBarcode, finalArticle);
+                        asyncHttpRequest("POST", contextPath + '/doAssign', true, changeString, doAssignCallback);
+
+                    } else {
+                        //ajax 로 다음 3가지 경우를 판단
+                        //1. 유효한 TAG 여부, 2. Re-Assign 경우, 3. assign 경우
+                        if (tagId.length == 12) {
+                            //12자리 tagId의 checksum계산을 위한 조건분기
+                            //barcode가 아닌 article id로 치환
+                            var queryString = formSerialize();
+                            var changeString = queryString.replace(finalBarcode, finalArticle);
+                            asyncHttpRequest("POST", contextPath + '/checkTagInfo', true, changeString, checkTagCallback);
+                        } else {
+                            $("serviceId").value = $("assignServiceId").value;
+                            //barcode가 아닌 article id로 치환
+                            var queryString = formSerialize();
+                            var changeString = queryString.replace(finalBarcode, finalArticle);
+                            asyncHttpRequest("POST", contextPath + '/doAssign', true, changeString, doAssignCallback);
+                        }
+                    }
+                } else {
+                    alert("");
+                    $tagId.value = '';
+                    $tagId.focus();
+                }
+            }
+        }
+        function doAssignCallback() {
+            if (request.readyState == 4) {
+                // 문서 다운로드가 완료되었는가?
+                if (request.status == 200) {
+                    // 문서가 정상적으로 로드되었는가?
+                    data = eval("(" + request.responseText + ")");		//JSON string convert to JSON object					
+                    //1. 'TAG NOT FOUND' 의 경우 alert() 처리하고 프로세스 종료
+                    //2. Re-Assign인 경우 confirm() 으로 처리하고 Y 이면 Re-assign 프로세스 진행
+                    //3. assign 성공한 경우 page refresh
+
+                    if ("AIMS" == "AIMS") {
+
+                        if (data.resultCode == "202") {
+
+                            if ("N" == 'Y') {
+                                if ($changeLayout.checked) {
+                                    $("serviceId").value = $("readLayoutServiceId").value;
+                                    asyncHttpRequest("POST", contextPath + '/readLayoutList', true, formSerialize(), readLayoutListCallback);
+                                } else {
+                                    $itemId.focus();
+                                    resetInputBox();
+                                    docOnload();
+                                    //location.href = contextPath+"/assign?time=1553657942106";
+                                }
+                            } else {
+                                resetInputBox();
+                                docOnload();
+                                //location.href = contextPath+"/assign?time=1553657942106";
+                            }
+                        } else {
+                            alert(data.message);
+                        }
+                    } else {
+                        if (data.resultCode == "00") {
+                            //window.location.reload(true);
+                            //location.href = contextPath+"/assign?time=1553657942106";
+
+                            if ("N" == 'Y') {
+                                if ($changeLayout.checked) {
+                                    $("serviceId").value = $("readLayoutServiceId").value;
+                                    asyncHttpRequest("POST", contextPath + '/readLayoutList', true, formSerialize(), readLayoutListCallback);
+                                } else {
+                                    resetInputBox();
+                                    docOnload();
+                                }
+                            } else {
+                                resetInputBox();
+                                docOnload();
+                            }
+
+                        } else if (data.resultCode == "01") {
+                            if (confirm("")) {
+                                doReAssign();
+                            } else {
+                                $tagId.select();
+                                $tagId.focus();
+                            }
+                        } else {
+                            //alert(data.message);								//interface에서 보내준 메시지를 그대로 보여줌.
+                            if (data.resultCode == '05') {
+                                alert("");
+                            } else if (data.resultCode == '12') {
+                                alert("");
+                            } else if (data.resultCode == '02') {
+                                alert("");
+                            } else {
+                                alert(data.message);
+                            }
+                            $tagId.select();
+                            $tagId.focus();
+                        }
+                    }
+
+                } else {
+                    alert("");
+                    $tagId.select();
+                    $tagId.focus();
+                }
+            }
+        }
+
+        function readLayoutListCallback() {
+            if (request.readyState == 4) {		// 문서 다운로드가 완료되었는가?
+                if (request.status == 200) {		// 문서가 정상적으로 로드되었는가?
+                    data = eval("(" + request.responseText + ")");		//JSON string convert to JSON object					
+                    if ("AIMS" == "AIMS") {
+                        if (data.resultCode == "200") {
+                            var length = $selectLayout.options.length;
+                            for (var i = 0; i < length; i++) {
+                                $selectLayout.options[1] = null;
+                            }
+                            for (i = 0; i < data.layouts.length; i++) {
+                                var option = new Option();
+                                option.value = data.layouts[i].name;
+                                option.text = data.layouts[i].name;
+                                $selectLayout.add(option);
+                            }
+                            if ($changeLayout.checked) {
+                                $selectLayout.focus();
+                            } else {
+                                $itemId.focus();
+                            }
+                        } else {
+                            alert(data.message);								//interface에서 보내준 메시지를 그대로 보여줌.
+                            $tagId.select();
+                            /* $tagId.focus(); */
+                        }
+
+                    } else {
+                        if (data.resultCode == "00") {
+                            var length = $selectLayout.options.length;
+                            for (var i = 0; i < length; i++) {
+                                $selectLayout.options[1] = null;
+                            }
+                            for (i = 0; i < data.LAYOUT.length; i++) {
+                                var option = new Option();
+                                option.value = data.LAYOUT[i].LAYOUT_ID;
+                                option.text = data.LAYOUT[i].LAYOUT_NAME;
+                                $selectLayout.add(option);
+                            }
+                            $itemId.focus();
+                        } else {
+                            alert(data.message);								//interface에서 보내준 메시지를 그대로 보여줌.
+                            $tagId.select();
+                            /* $tagId.focus(); */
+                        }
+                    }
+                } else {
+                    alert("Server error : (" + request.status + ") " + request.statusText);
+                    $tagId.select();
+                    $tagId.focus();
+                }
+            }
+        }
+
+        function doChangeLayout() {
+            $("serviceId").value = $("reassignServiceId").value;
+            $("layoutId").value = $selectLayout.value;
+            asyncHttpRequest("POST", contextPath + '/doChangeLayout', true, formSerialize(), doChangeLayoutCallback);
+        }
+
+        function doChangeLayoutCallback() {
+            if (request.readyState == 4) {
+                if (request.status == 200) {
+                    data = eval("(" + request.responseText + ")");		//JSON string convert to JSON object
+
+                    if ("AIMS" == "AIMS") {
+
+                        if (data.resultCode == "202") {
+                            location.href = contextPath + "/assign?time=1553657942107";
+                        } else {
+                            alert(data.message);
+                        }
+
+                    } else {
+                        if (data.resultCode == "00") {
+                            var length = $selectLayout.options.length;
+                            for (var i = 0; i < length; i++) {					// select의 option을 삭제 - 기존에 불러왔던 layout list를 초기화 한다.
+                                $selectLayout.options[1] = null;
+                            }
+                            resetInputBox();
+                            docOnload();
+                        } else {
+                            alert(data.message);
+                        }
+
+                    }
+
+                } else {
+                    alert("Server error : (" + request.status + ") " + request.statusText);
+                }
+            }
+        }
+		/*
+		 * reassign
+		 */
+        function doReAssign() {
+            $("serviceId").value = $("reassignServiceId").value;
+            asyncHttpRequest("POST", contextPath + '/doAssign', true, formSerialize(), doReAssignCallback);
+        }
+
+        function doReAssignCallback() {
+            if (request.readyState == 4) {
+                if (request.status == 200) {
+                    data = eval("(" + request.responseText + ")");		//JSON string convert to JSON object
+                    if (data.resultCode == "00") {
+                        //location.href = contextPath+"/assign";
+                        if ("N" == 'Y') {
+                            if ($changeLayout.checked) {
+                                $("serviceId").value = $("readLayoutServiceId").value;
+                                asyncHttpRequest("POST", contextPath + '/readLayoutList', true, formSerialize(), readLayoutListCallback);
+                            } else {
+                                resetInputBox();
+                                docOnload();
+                            }
+                        } else {
+                            resetInputBox();
+                            docOnload();
+                        }
+                    } else {
+                        //alert(data.message);
+                        if (data.resultCode == '02') {
+                            alert("");
+                        } else {
+                            alert(data.message);
+                        }
+                    }
+                } else {
+                    alert("");
+                }
+            }
+        }
+
+        function viewSelectBox() {
+            if ($changeLayout.checked) {
+                $selectLayout.style.display = "inline";
+            } else {
+                $selectLayout.style.display = "none";
+                var length = $selectLayout.options.length;
+                for (var i = 0; i < length; i++) {
+                    $selectLayout.options[1] = null;
+                }
+            }
+        }
+
+        function resetInputBox() {
+            $itemId.value = "";
+            $tagId.value = "";
+
+            document.getElementById("itemList").innerHTML = "";
+            document.getElementById("itemList").style.background = "#EEEEEE";
+            document.getElementById("itemName").innerHTML = "";
+            document.getElementById("itemName").style.background = "#EEEEEE";
+
+            if ("N" == 'Y') {
+                $articleNum.value = "";
+            }
+            $("itemName").value = '';
+			/* $("salePrice").value='';
+			$("unitPrice").value="";
+			$("origin").value=""; */
+            if ($("customer").value == 'HOOGVLIET') {
+                $("NumOftags").value = '';
+            }
+
+            if ($("customer").value == 'ALDI') {
+                $("listPrice").value = '';
+                $("itemAlias").value = '';
+                $("itemCategory1").value = '';
+                $("itemManufacturer").value = '';
+                $("itemEtc0").value = '';
+                $("itemWeight").value = '';
+                $("itemCategory2").value = '';
+            }
+            if ($("customer").value == 'MEDIASATUN') {
+                $("sbNum").value = '';
+            }
+            $tagId.value = "";
+        }
+
+        function inputList(event, obj) {
+            if (event.keyCode == 13 && obj.value != '') {
+                var barcodeNum = obj.value;
+                finalBarcode = barcodeNum;
+                asyncHttpRequest("GET", contextPath + '/readAmoreList', true, 'barcode=' + barcodeNum, inputListCallback);
+            }
+        }
+
+        function inputListCallback() {
+            if (request.readyState == 4) {
+                // 문서 다운로드가 완료되었는가?
+                if (request.status == 200) {
+                    // 문서가 정상적으로 로드되었는가?
+                    data = eval("(" + request.responseText + ")");
+
+                    var size = data.length;
+                    if (size >= 1) {
+                        var itemTable = "<table width='100%' id='itemListTable'>";
+                        itemTable += "<thead>";
+                        itemTable += "<tr>";
+                        itemTable += "<th>Article ID</th>";
+                        itemTable += "<th>Product Name</th>";
+                        itemTable += "<th>Price</th>";
+                        itemTable += "</tr>";
+                        itemTable += "</thead>";
+                        itemTable += "<tbody>";
+
+                        for (i = 0; i < size; i++) {
+                            itemTable += "<tr>";
+                            //itemTable+="<th>"+data[i].stationCode+"</th>";
+                            itemTable += "<th>" + data[i].articleId + "</th>";
+                            itemTable += "<th>" + data[i].name + "</th>";
+                            itemTable += "<th>" + data[i].price + "</th>";
+                            itemTable += "</tr>";
+                        }
+
+                        itemTable += "</tbody>";
+                        itemTable += "</table>";
+
+                        document.getElementById("itemList").innerHTML = itemTable;
+                        document.getElementById("itemList").style.background = "#FFFFFF";
+                    }
+
+                    document.getElementById('itemListTable').onclick = function (event) {
+                        //find click column
+                        event = event || window.event;
+                        var target = event.target || event.srcElement;
+                        while (target && target.nodeName != 'TR') {
+                            target = target.parentElement;
+                        }
+                        var cells = target.cells;
+                        if (!cells.length || target.parentNode.nodeName == 'THEAD') {
+                            return;
+                        }
+
+                        //change text/background color
+                        var tbody = target.parentNode;
+                        var trs = tbody.getElementsByTagName('tr');
+
+                        for (var i = 0; i < trs.length; i++) {
+                            if (trs[i] != target) {
+                                trs[i].style.color = "black";
+                            } else {
+                                trs[i].style.color = "blue";
+                            }
+                        }
+
+                        //write click column info
+                        var articleId = cells[0].innerHTML;
+                        var productName = cells[1].innerHTML;
+                        var price = cells[2].innerHTML;
+                        var productInfo = "Article ID: " + articleId + ", Product Name: " + productName + ", Price: " + price;
+
+                        document.getElementById("itemName").innerHTML = productInfo;
+                        document.getElementById("itemName").style.background = "#FFFFFF";
+
+                        //$("itemId").value = articleId;
+                        finalArticle = articleId;
+                    }
+
+                } else {
+                    alert("");
+                    //location.reload();
+                }
+            }
+        }
+    </script>
+</head>
+<body onload="javascript:docOnload();">
+    <!-- #. 전체랩 # -->
+    <div class="totalWrap">
+        <!-- 색상타입 스킨선택 클래스명 추가 : Orange, Green, Red -->
+        <hr class="skip">
+        <div class="header">
+            <!-- 1_1. 상단바 -->
+            <div class="centerWrap">
+                <h1 class="logo"><a href="/PDA2/">
+                        <img style="height:20px; margin:8px; width:100px;"
+                            src="/PDA2/resources/images/mainLogo_solum.png" alt="solum">
+                        <span style="vertical-align:middle;">&nbsp;&nbsp;&nbsp; </span>
+                    </a></h1>
+                <span class="setting"><a href="/PDA2/setting">Settings</a></span>
+                <span class="menuBtn"><a href="/PDA2/">Menu</a></span>
+            </div>
+            <!-- 1_3. 서브 타이틀 -->
+            <h2 class="subTitle">
+                Assign
+            </h2>
+        </div>
+        <hr class="skip">
+        <!-- ################2. 컨테이너 본문 ################ -->
+        <div class="container">
+            <div class="centerWrap">
+                <!-- 2_1. 상품/쇼카드 매칭 테이블 -->
+                <input type="hidden" id="assignServiceId" value="Assign" />
+                <input type="hidden" id="reassignServiceId" value="ReAssign" />
+                <input type="hidden" id="readLayoutServiceId" value="LayoutList" />
+                <input type="hidden" id="customer" value="customer">
+                <form method="post">
+                    <input type="hidden" name="serviceId" id="serviceId" />
+                    <input type="hidden" name="layoutId" id="layoutId" />
+                    <input type="hidden" name="newlySelectedStoreCode" id="newlySelectedStoreCode" />
+                    <table width="100%" cellspacing="0" cellpadding="0" class="basic">
+                        <tr>
+                            <th class="blue">Barcode:</th>
+                            <td><input type="text" autocomplete="off" class="text blue" name="itemId" id="itemId"
+                                    onclick="this.select();" onkeypress="javascript:inputList(event, this);"
+                                    onkeyup="this.value=this.value.replace(/[^0-9 a-z A-Z]/,'')"></td>
+                        </tr>
+                        <tr>
+                            <td colspan='2'>
+                                <div class="type1" id="itemList"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan='2'>
+                                <div class="type2" id="itemName" disabled="disabled"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="red">Tag ID:</th>
+                            <td><input type="text" autocomplete="off" class="text red" value="" name="tagId" id="tagId"
+                                    onkeypress="javascript:doAssign(event, this);"
+                                    onkeyup="this.value=this.value.replace(/[^0-9 a-f A-F]/,'')"></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+        <hr class="skip">
+        <!-- ###################3. 푸터 ###################### -->
+        <div class="footer">
+            <p class="copyright">Version. 1.1</p>
+        </div>
+        <!-- Loding Image -->
+        <div id="divLoadBody" style="display:none;">
+            <div id="loadingBar"
+                style="position:absolute; background-color:#635e63; filter:alpha(opacity=50); opacity:0.5; -moz-opacity:0.5; top:0; left:0; width:100%; height:100%; text-align:center; margin:0 auto; z-index:100000;">
+                <table style="width:100%; height:100%; border:0;">
+                    <tr>
+                        <td align="center">
+                            <!-- <div style="text-align:center; z-index:1000000;"><img src="/resources/images/common/loading_map.gif"/></div> -->
+                            <div style="margin-top:20px; text-align:center; font-weight:bold; z-index:1000000;">L o a d
+                                i n g . . .</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <!-- Loading Image -->
+    </div>
+</body>
+</html>
